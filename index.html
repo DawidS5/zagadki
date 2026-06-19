@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zagadki dla Natalii</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&family=Caveat:wght@600;700&display=swap');
+
+  :root{
+    --cream:#FFF8EF;
+    --paper:#FFFDF8;
+    --ink:#2B2438;
+    --coral:#FF6B5B;
+    --sun:#FFC93C;
+    --turquoise:#22BFB3;
+    --grape:#8C54E0;
+    --pink:#FF5FA0;
+    --muted:#9089a3;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Nunito',sans-serif;
+    position:relative;
+    overflow-x:hidden;
+    padding-bottom:60px;
+  }
+
+  /* ---------- floating background decor ---------- */
+  .bg-decor{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+  .bg-decor span{position:absolute;opacity:.35;font-size:28px;animation:drift 14s ease-in-out infinite;}
+  .bg-decor span:nth-child(1){top:8%;left:6%;animation-delay:0s;font-size:22px;}
+  .bg-decor span:nth-child(2){top:18%;left:85%;animation-delay:2s;font-size:34px;}
+  .bg-decor span:nth-child(3){top:60%;left:3%;animation-delay:4s;font-size:26px;}
+  .bg-decor span:nth-child(4){top:75%;left:90%;animation-delay:1s;font-size:30px;}
+  .bg-decor span:nth-child(5){top:40%;left:50%;animation-delay:3s;font-size:20px;}
+  .bg-decor span:nth-child(6){top:85%;left:45%;animation-delay:5s;font-size:24px;}
+  @keyframes drift{
+    0%,100%{transform:translateY(0) rotate(0deg);}
+    50%{transform:translateY(-22px) rotate(8deg);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .bg-decor span{animation:none;}
+  }
+
+  /* ---------- header ---------- */
+  header{
+    position:relative;z-index:1;
+    text-align:center;
+    padding:48px 20px 12px;
+  }
+  h1{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:800;
+    font-size:clamp(28px,5vw,44px);
+    margin:0 0 10px;
+    color:var(--coral);
+    text-shadow:2px 2px 0 var(--sun);
+  }
+  .subtitle{
+    max-width:520px;
+    margin:0 auto;
+    color:var(--muted);
+    font-size:16px;
+    line-height:1.5;
+  }
+  .subtitle .edit-hint{
+    display:block;
+    font-size:12px;
+    color:var(--grape);
+    margin-top:6px;
+    font-weight:700;
+  }
+
+  /* ---------- progress path ---------- */
+  .progress-path{
+    position:relative;z-index:1;
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:10px 4px;
+    max-width:680px;
+    margin:30px auto 10px;
+    padding:0 16px;
+  }
+  .step{
+    width:34px;height:34px;
+    border-radius:50%;
+    background:var(--paper);
+    border:3px solid #e7decf;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    color:var(--muted);
+    position:relative;
+    transition:all .4s ease;
+  }
+  .step:not(:last-child)::after{
+    content:'';
+    position:absolute;
+    left:100%;top:50%;
+    width:16px;height:3px;
+    background:#e7decf;
+    transform:translateY(-50%);
+  }
+  .step.done{
+    background:linear-gradient(135deg,var(--coral),var(--pink));
+    border-color:var(--coral);
+    color:#fff;
+    transform:scale(1.08);
+  }
+  .step.done:not(:last-child)::after{background:linear-gradient(90deg,var(--coral),var(--pink));}
+  .step.current{
+    border-color:var(--sun);
+    box-shadow:0 0 0 4px rgba(255,201,60,.35);
+  }
+  .step.envelope-step{font-size:16px;}
+
+  /* ---------- quiz card ---------- */
+  main.quiz-card{
+    position:relative;z-index:1;
+    max-width:520px;
+    margin:30px auto;
+    background:var(--paper);
+    border-radius:28px;
+    padding:32px 28px 36px;
+    box-shadow:0 18px 40px -16px rgba(43,36,56,.25);
+    border:3px solid #fff;
+  }
+  .riddle-number{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    color:var(--grape);
+    font-size:14px;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    text-align:center;
+    margin-bottom:14px;
+  }
+  .riddle-image{
+    width:140px;height:140px;
+    margin:0 auto 18px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .riddle-image svg{width:100%;height:100%;}
+
+  .photo-placeholder{
+    width:100%;height:100%;
+    border:3px dashed #d8cdb8;
+    border-radius:18px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:6px;
+    color:var(--muted);
+    font-size:11px;
+    text-align:center;
+    padding:8px;
+  }
+  .photo-placeholder svg{width:30px;height:30px;}
+  .photo-placeholder small{display:block;opacity:.8;font-size:10px;}
+
+  .riddle-question{
+    font-size:18px;
+    line-height:1.6;
+    text-align:center;
+    margin:0 0 24px;
+    color:var(--ink);
+  }
+
+  #answerForm{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  #answerInput{
+    flex:1 1 180px;
+    padding:14px 16px;
+    border-radius:14px;
+    border:2px solid #e7decf;
+    font-family:'Nunito',sans-serif;
+    font-size:16px;
+    outline-offset:2px;
+    transition:border-color .2s;
+  }
+  #answerInput:focus{border-color:var(--turquoise);}
+  #answerForm button{
+    padding:14px 20px;
+    border:none;
+    border-radius:14px;
+    background:var(--turquoise);
+    color:#fff;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    cursor:pointer;
+    transition:transform .15s, background .2s;
+  }
+  #answerForm button:hover{background:#1ba89d;transform:translateY(-1px);}
+  #answerForm button:focus-visible, .step:focus-visible, #nextButton:focus-visible{
+    outline:3px solid var(--grape);
+  }
+
+  .feedback{
+    min-height:22px;
+    text-align:center;
+    font-weight:700;
+    margin:14px 0 0;
+    color:var(--coral);
+  }
+  .shake{animation:shake .4s;}
+  @keyframes shake{
+    20%,60%{transform:translateX(-6px);}
+    40%,80%{transform:translateX(6px);}
+  }
+
+  .success-box{
+    margin-top:18px;
+    background:#fef3e6;
+    border-radius:16px;
+    padding:18px;
+    text-align:center;
+    animation:pop .35s ease;
+  }
+  @keyframes pop{from{transform:scale(.9);opacity:0;}to{transform:scale(1);opacity:1;}}
+  .success-box p{margin:0 0 14px;line-height:1.5;font-size:15px;}
+  #nextButton{
+    border:none;border-radius:14px;
+    background:linear-gradient(135deg,var(--coral),var(--pink));
+    color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;
+    padding:12px 22px;font-size:15px;cursor:pointer;
+  }
+
+  /* ---------- final screen ---------- */
+  .final-screen{
+    position:relative;z-index:1;
+    max-width:520px;margin:40px auto;
+    text-align:center;
+    padding:0 20px;
+  }
+  .envelope{
+    width:180px;height:120px;margin:0 auto 14px;
+    position:relative;cursor:pointer;
+    filter:drop-shadow(0 10px 20px rgba(43,36,56,.25));
+  }
+  .envelope-body{
+    position:absolute;inset:0;
+    background:linear-gradient(135deg,var(--sun),var(--coral));
+    border-radius:10px;
+  }
+  .envelope-flap{
+    position:absolute;top:0;left:0;width:100%;height:60%;
+    background:var(--pink);
+    clip-path:polygon(0 0,100% 0,50% 100%);
+    border-radius:10px 10px 0 0;
+    transform-origin:top;
+    transition:transform .5s ease;
+  }
+  .envelope.open .envelope-flap{transform:rotateX(180deg);}
+  .envelope-heart{
+    position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+    font-size:26px;
+  }
+  .envelope-hint{font-size:13px;color:var(--muted);margin:0 0 10px;}
+
+  .letter{margin-top:20px;}
+  .letter-paper{
+    background:var(--paper);
+    border-radius:18px;
+    padding:32px 26px;
+    text-align:left;
+    box-shadow:0 18px 40px -16px rgba(43,36,56,.25);
+    border:3px solid #fff;
+    font-family:'Caveat',cursive;
+    font-size:22px;
+    line-height:1.55;
+    color:var(--ink);
+    animation:pop .4s ease;
+  }
+  .letter-paper .edit-marker{color:var(--grape);font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;}
+  .letter-signoff{margin-top:18px;text-align:right;font-size:24px;}
+
+  /* ---------- confetti ---------- */
+  #confettiLayer{position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden;}
+  .confetti-piece{
+    position:absolute;top:-10px;
+    width:8px;height:14px;
+    opacity:.9;
+    animation:fall 1.6s linear forwards;
+  }
+  @keyframes fall{
+    to{transform:translateY(110vh) rotate(360deg);opacity:0;}
+  }
+
+  footer.note{
+    text-align:center;color:var(--muted);font-size:12px;margin-top:50px;
+  }
+
+  @media (max-width:480px){
+    main.quiz-card{padding:26px 18px 30px;border-radius:22px;}
+    .riddle-image{width:110px;height:110px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-decor" aria-hidden="true">
+  <span>💛</span><span>✨</span><span>🌸</span><span>💫</span><span>🩷</span><span>⭐</span>
+</div>
+
+<header>
+  <h1>Zagadki dla Natalci</h1>
+  <p class="subtitle">
+    8 zagadek, 8 małych wiadomości od mnie a na końcu napisałem dla Ciebie list.
+    Wpisz odpowiedź w pole pod każdą zagadką i sprawdź, co dalej. 💌
+    <span class="edit-hint">Napisz odpowiedzi małą literą i bez polskich znaków.</span>
+  </p>
+</header>
+
+<div class="progress-path" id="progressPath" aria-label="Postęp w quizie"></div>
+
+<main class="quiz-card" id="quizCard">
+  <div class="riddle-number" id="riddleNumber"></div>
+  <div class="riddle-image" id="riddleImage"></div>
+  <p class="riddle-question" id="riddleQuestion"></p>
+
+  <form id="answerForm" autocomplete="off">
+    <input type="text" id="answerInput" placeholder="Twoja odpowiedź..." aria-label="Wpisz odpowiedź">
+    <button type="submit">Sprawdź ✓</button>
+  </form>
+  <p class="feedback" id="feedback" role="status" aria-live="polite"></p>
+
+  <div class="success-box" id="successBox" hidden>
+    <p id="successMessage"></p>
+    <button id="nextButton" type="button">Dalej →</button>
+  </div>
+</main>
+
+<section class="final-screen" id="finalScreen" hidden>
+  <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Otwórz list">
+    <div class="envelope-body"></div>
+    <div class="envelope-flap"></div>
+    <div class="envelope-heart">💌</div>
+  </div>
+  <p class="envelope-hint">Kliknij w kopertę, żeby otworzyć</p>
+
+  <div class="letter" id="letter" hidden>
+    <div class="letter-paper">
+      <p>Cześć Natalcia,</p>
+      <p>
+        Jeśli to czytasz, to znaczy, że przeszłaś przez wszystkie zagadki i dotarłaś do końca.
+        Dziękuję, że dałaś im szansę, tak jak mam nadzieję, że dasz szansę temu, co teraz napiszę.
+      </p>
+      <p>
+        Pamiętam nasze wspólne chwile, śmiech, rozmowy i te małe momenty, które sprawiały, że każdy dzień był lepszy. Pamiętam jak leżałem sobie na szkolnym boisku i pokazywałem ci zdjęcia drzew.
+        Pamiętam też, jak codziennie razem graliśmy w mm2 na robloxie często się śmialiśmy i rageowaliśmy przez kidoski które cie zabijały. Pamiętam jak wracałem ze szkoły i myślałem tylko o Tobie.
+      </p>
+      <p>
+        Wiem, że ostatnio coraz bardziej nam nie po drodze, ale mimo to chciałbym, żebyś wiedziała, że zawsze będę Cię wspominał z uśmiechem i ciepłem w sercu. Często łapię mnie nostalgia naszych wspólnych chwil, dobija mnie ta świadomość, że to już nie wróci dlatego piszę ten list.
+        Nie chce być wrogami tylko dobrymi przyjaciółmi. Mam nadzieję że wszystko się jakoś ułoży i że będziemy mogli jeszcze kiedyś się wspólnie pośmiać.
+        Nigdy nie miałem w swoim życiu takiej osoby jak Ty dlatego nie potrafie pogodzić się ze stratą.
+        Czułem się wyjątkowy i szczęśliwy. Dziękuje ci za to.
+        Przepraszam, że nie potrafiłem być chłopakiem, którego chciałaś. Mam nadzieję że wybaczysz mi moje błędy i pozwolisz mi odzyskać twoje zaufanie bo zależy mi na tym.
+      </p>
+      <p>
+        Dziękuję za wszystko, co razem przeszliśmy, i za to, że przez pewien czas byłaś częścią mojego życia tak jak ja mogłem być częścią Twojego.
+        Mam nadzieję, że jesteś szczęśliwa, a jeśli jeszcze szukasz swojego miejsca, to że je odnajdziesz.
+        Chciałbym, żebyś była szczęśliwa, nawet jeśli to ma oznaczać, że beze mnie.
+      </p>
+      <p>Dziękuję, że dotrwałaś do końca i za wszystko co dla mnie zrobiłaś dlatego, że przy nikim innym nie czułem się tak dobrze jak przy Tobie.</p>
+      <p>Kocham Cie Natalka</p>
+      <p class="letter-signoff">
+        Na zawsze,
+        <span>Dawid</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer class="note">zrobione z myślą o Tobie 💛</footer>
+
+<div id="confettiLayer" aria-hidden="true"></div>
+
+<script>
+
+const riddles = [
+  {
+    question: "Twoi bracia gdy byli mali nie potrafili wymawiać twojego imienia i mówili na Ciebie...?",
+    answers: ["tataju"],
+    image: { type: "svg", name: "trees" },
+    message: "Nadal uważam, że masz najpiękniejsze imię na świecie. 🌸"
+  },
+  {
+    question: "Jak ma na imie moj tata?",
+    answers: ["kamil"],
+    image: { name: "natalia1" },
+    message: "Zawsze mówiłaś że się go boisz 😭"
+  },
+  {
+    question: "Twój największy lęk to...?",
+    answers: ["pajaki", "pajak", "arachnofobia"],
+    image: { type: "svg", name: "spider" },
+    message: "Zabiłbym dla ciebie każdego pająka, żebyś czuła się bezpiecznie. 🕷️"
+  },
+  {
+    question: "Bije od pierwszego dnia życia. Czasem przyspiesza bez wysiłku. Szczególnie wtedy, gdy pojawia stres lub pewna osoba. Co to jest?",
+    answers: ["serce"],
+    image: { type: "svg", name: "heart" },
+    message: "Moje serce zawsze biło szybciej, gdy byłem z Tobą. Dziękuję, że sprawiałaś, że czułem się wyjątkowo. ❤️"
+  },
+  {
+    question: "Im więcej go z Tobą spędzam, tym bardziej go brakuje. Nie waży nic, nie ma koloru, a potrafi stać się najpiękniejszym wspomnieniem. Co to jest?",
+    answers: ["czas"],
+    image: { type: "svg", name: "hourglass" },
+    message: "Czas, który razem spędziliśmy, był dla mnie naprawdę wyjątkowy. ⏳"
+  },
+  {
+    question: "Nie mówię, a wiele wyrażam. Czasem jestem krzywy często piękny oraz szczery, ale zawsze zdradzam, co czuję w środku. Pojawiam się czasem na kilka sekund ale potrafię wzgobacić czyiś dzień. Co to?",
+    answers: ["usmiech"],
+    image: { type: "svg", name: "smile" },
+    message: "To właśnie twój uśmiech sprawiał, że każdy dzień był lepszy. Pamiętam go bardzo dobrze. ✨"
+  },
+  {
+    question: "Nie można mnie kupić, nie można mnie sprzedać. Nie można mnie zobaczyć, nie można mnie dotknąć. Łatwo jest mnie stracić, ale bardzo trudno odzyskać. Co to?",
+    answers: ["zaufanie"],
+    image: { name: "natalia2" },
+    message: "Przepraszam, że je zawiodłem. Jeśli dasz mi szansę zrobię wszystko żeby je odzyskać. 💛"
+  },
+  {
+    question: "Szukałem tego długo, choć nie wiedziałem, że szukam. Nie można tego kupić, wygrać ani znaleźć na mapie. A jednak pewnego dnia pojawiło się w moim życiu. Co to jest?",
+    answers: ["ja"],
+    image: { name: "natalia3" },
+    message: "Tak, to byłaś właśnie Ty. Dziękuję, że pojawiłaś się w moim życiu. 🌟"
+  }
+];
+
+const illustrations = {
+  smile: `<svg viewBox="0 0 200 200" role="img" aria-label="Uśmiechnięte słońce">
+      <circle cx="100" cy="100" r="55" fill="#FFC93C"/>
+      <g stroke="#FFC93C" stroke-width="8" stroke-linecap="round">
+        <line x1="100" y1="20" x2="100" y2="5"/><line x1="100" y1="195" x2="100" y2="180"/>
+        <line x1="20" y1="100" x2="5" y2="100"/><line x1="195" y1="100" x2="180" y2="100"/>
+        <line x1="40" y1="40" x2="28" y2="28"/><line x1="160" y1="40" x2="172" y2="28"/>
+        <line x1="40" y1="160" x2="28" y2="172"/><line x1="160" y1="160" x2="172" y2="172"/>
+      </g>
+      <circle cx="80" cy="95" r="6" fill="#2B2438"/><circle cx="120" cy="95" r="6" fill="#2B2438"/>
+      <path d="M75 120 Q100 145 125 120" stroke="#2B2438" stroke-width="6" fill="none" stroke-linecap="round"/>
+    </svg>`,
+  trees: `<svg viewBox="0 0 200 160" role="img" aria-label="Dwa drzewa o splecionych korzeniach">
+      <line x1="0" y1="120" x2="200" y2="120" stroke="#2B2438" stroke-width="2" opacity="0.25"/>
+      <rect x="55" y="70" width="10" height="50" fill="#8a6240"/>
+      <circle cx="60" cy="55" r="35" fill="#22BFB3"/>
+      <rect x="135" y="70" width="10" height="50" fill="#8a6240"/>
+      <circle cx="140" cy="55" r="35" fill="#8C54E0"/>
+      <path d="M60 120 C 80 138, 90 138, 100 120 C 110 138, 120 138, 140 120" stroke="#8a6240" stroke-width="6" fill="none" stroke-linecap="round"/>
+    </svg>`,
+  hourglass: `<svg viewBox="0 0 200 200" role="img" aria-label="Klepsydra z kwiatami u podstawy">
+      <path d="M70 30 H130 L100 100 L130 170 H70 L100 100 Z" fill="none" stroke="#2B2438" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M78 36 H122 L100 95 Z" fill="#FFC93C"/>
+      <path d="M78 164 H122 L100 105 Z" fill="#FF5FA0"/>
+      <g transform="translate(60,180)"><circle r="6" fill="#FF6B5B"/><circle cx="12" r="6" fill="#22BFB3"/></g>
+      <g transform="translate(128,182)"><circle r="6" fill="#8C54E0"/></g>
+    </svg>`,
+    heart: `<svg viewBox="0 0 200 180" role="img" aria-label="Serce z kwiatem w środku">
+      <path d="M100 160 L20 80 A30 30 0 0 1 60 40 A30 30 0 0 1 100 80 A30 30 0 0 1 140 40 A30 30 0 0 1 180 80 Z" fill="#FF6B5B" stroke="#2B2438" stroke-width="4"/>
+      <circle cx="100" cy="90" r="12" fill="#FFC93C"/>
+    </svg>`,
+    spider: `<svg viewBox="0 0 200 200" role="img" aria-label="Pająk z ośmioma nogami">
+      <circle cx="100" cy="100" r="20" fill="#2B2438"/>
+      <g stroke="#2B2438" stroke-width="4" stroke-linecap="round">
+        <line x1="100" y1="100" x2="60" y2="60"/>
+        <line x1="100" y1="100" x2="140" y2="60"/>
+        <line x1="100" y1="100" x2="60" y2="140"/>
+        <line x1="100" y1="100" x2="140" y2="140"/>
+        <line x1="100" y1="100" x2="40" y2="80"/>
+        <line x1="100" y1="100" x2="160" y2="80"/>
+        <line x1="100" y1="100" x2="40" y2="120"/>
+        <line x1="100" y1="100" x2="160" y2="120"/>
+      </g>
+    </svg>`,
+};
+
+const photoPlaceholderSVG = `
+  <svg viewBox="0 0 64 64" aria-hidden="true">
+    <rect x="4" y="14" width="56" height="40" rx="6" fill="none" stroke="currentColor" stroke-width="3"/>
+    <circle cx="22" cy="30" r="6" fill="none" stroke="currentColor" stroke-width="3"/>
+    <path d="M10 48 L26 32 L36 42 L46 30 L58 46" fill="none" stroke="currentColor" stroke-width="3"/>
+  </svg>`;
+
+let current = 0;
+const solved = new Array(riddles.length).fill(false);
+
+const progressPath = document.getElementById("progressPath");
+const riddleNumber = document.getElementById("riddleNumber");
+const riddleImage = document.getElementById("riddleImage");
+const riddleQuestion = document.getElementById("riddleQuestion");
+const answerForm = document.getElementById("answerForm");
+const answerInput = document.getElementById("answerInput");
+const feedback = document.getElementById("feedback");
+const successBox = document.getElementById("successBox");
+const successMessage = document.getElementById("successMessage");
+const nextButton = document.getElementById("nextButton");
+const quizCard = document.getElementById("quizCard");
+const finalScreen = document.getElementById("finalScreen");
+const envelope = document.getElementById("envelope");
+const letter = document.getElementById("letter");
+
+function normalize(str){
+  return str.toLowerCase().trim()
+    .replace(/\s+/g," ")
+    .replace(/ą/g,"a").replace(/ć/g,"c").replace(/ę/g,"e").replace(/ł/g,"l")
+    .replace(/ń/g,"n").replace(/ó/g,"o").replace(/ś/g,"s").replace(/ź/g,"z").replace(/ż/g,"z")
+    .replace(/[.,!?;:'"„”]/g,"");
+}
+
+function renderProgress(){
+  progressPath.innerHTML = "";
+  riddles.forEach((_, i) => {
+    const el = document.createElement("div");
+    el.className = "step";
+    if (solved[i]) el.classList.add("done");
+    if (i === current && !solved[i]) el.classList.add("current");
+    el.textContent = solved[i] ? "✓" : (i + 1);
+    progressPath.appendChild(el);
+  });
+  const env = document.createElement("div");
+  env.className = "step envelope-step" + (solved.every(Boolean) ? " done" : "");
+  env.textContent = "💌";
+  progressPath.appendChild(env);
+}
+
+function renderImage(image){
+  if (image.type === "svg") {
+    riddleImage.innerHTML = illustrations[image.name] || "";
+  } else if (image.name === "natalia1") {
+    riddleImage.innerHTML =
+      `<img src="natalia1.jpg" alt="Natalia" style="width:100%;height:100%;object-fit:cover;border-radius:18px;">`;
+  }
+  else if (image.name === "natalia2") {
+    riddleImage.innerHTML =
+      `<img src="natalia2.jpg" alt="Natalia" style="width:100%;height:100%;object-fit:cover;border-radius:18px;">`;
+  }else if (image.name === "natalia3") {
+    riddleImage.innerHTML =
+      `<img src="natalia3.jpeg" alt="Natalia" style="width:100%;height:100%;object-fit:cover;border-radius:18px;">`;
+  }
+}
+
+function renderRiddle(){
+  const r = riddles[current];
+  riddleNumber.textContent = `Zagadka ${current + 1} z ${riddles.length}`;
+  renderImage(r.image);
+  riddleQuestion.textContent = r.question;
+  answerInput.value = "";
+  feedback.textContent = "";
+  successBox.hidden = true;
+  answerForm.hidden = false;
+  renderProgress();
+  answerInput.focus();
+}
+
+answerForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const r = riddles[current];
+  const guess = normalize(answerInput.value);
+  const ok = r.answers.some(a => normalize(a) === guess);
+
+  if (ok) {
+    solved[current] = true;
+    successMessage.textContent = r.message;
+    successBox.hidden = false;
+    answerForm.hidden = true;
+    feedback.textContent = "";
+    renderProgress();
+    burstConfetti(quizCard);
+  } else {
+    feedback.textContent = "Hmm, spróbuj jeszcze raz ✏️";
+    quizCard.classList.remove("shake");
+    requestAnimationFrame(() => quizCard.classList.add("shake"));
+  }
+});
+
+nextButton.addEventListener("click", () => {
+  if (current < riddles.length - 1) {
+    current++;
+    renderRiddle();
+  } else {
+    quizCard.hidden = true;
+    progressPath.hidden = true;
+    finalScreen.hidden = false;
+    burstConfetti(finalScreen);
+  }
+});
+
+function openLetter(){
+  if (envelope.classList.contains("open")) return;
+  envelope.classList.add("open");
+  setTimeout(() => {
+    letter.hidden = false;
+    burstConfetti(finalScreen);
+    letter.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, 350);
+}
+envelope.addEventListener("click", openLetter);
+envelope.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openLetter(); }
+});
+
+function burstConfetti(anchorEl){
+  const layer = document.getElementById("confettiLayer");
+  const colors = ["#FF6B5B", "#FFC93C", "#22BFB3", "#8C54E0", "#FF5FA0"];
+  const rect = anchorEl.getBoundingClientRect();
+  const originX = rect.left + rect.width / 2;
+  for (let i = 0; i < 26; i++) {
+    const piece = document.createElement("div");
+    piece.className = "confetti-piece";
+    piece.style.left = (originX + (Math.random() * 200 - 100)) + "px";
+    piece.style.top = Math.max(rect.top, 0) + "px";
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDelay = (Math.random() * 0.3) + "s";
+    piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+    layer.appendChild(piece);
+    setTimeout(() => piece.remove(), 2000);
+  }
+}
+
+renderRiddle();
+</script>
+</body>
+</html>
